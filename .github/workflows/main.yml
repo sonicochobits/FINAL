@@ -1,0 +1,23 @@
+name: CI-CD-FINAL
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted  
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker Image
+        run: docker build -t app-final .
+
+      - name: Deploy Container
+        run: |
+          docker stop app || true
+          docker rm app || true
+          docker run -d --name app -p 8080:80 app-final
+
+      - name: Exec Rollback Script
+        run: chmod +x rollback.sh && ./rollback.sh
